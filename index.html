@@ -2,153 +2,199 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Reseller Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cheat Reseller Panel</title>
   <style>
-    body { font-family: sans-serif; background: #111; color: #eee; padding: 20px; }
-    .hidden { display: none; }
-    input, button { margin: 5px; padding: 8px; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; }
-    .product { background: #222; padding: 10px; margin: 10px 0; border-radius: 6px; }
-    .admin-tools { margin-top: 20px; }
-    .logout-btn { float: right; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #111;
+      color: white;
+    }
+    .container {
+      max-width: 400px;
+      margin: 5% auto;
+      background-color: #222;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #444;
+    }
+    h2 {
+      text-align: center;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      background: #333;
+      border: none;
+      border-radius: 5px;
+      color: white;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+    .link-button {
+      background: none;
+      color: #aaa;
+      text-align: center;
+      border: none;
+      display: block;
+      margin: 5px auto;
+      cursor: pointer;
+    }
+    #admin-login-link {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: underline;
+      color: #aaa;
+    }
+    .hidden {
+      display: none;
+    }
+    .panel {
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px;
+      text-align: left;
+    }
   </style>
 </head>
 <body>
+<div class="container" id="auth-container">
+  <h2>Login / Sign Up</h2>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="signup()">Sign Up</button>
+  <button onclick="login()">Login</button>
+</div>
 
-  <div id="auth-section">
-    <h2>Login or Sign Up</h2>
-    <input type="text" id="auth-username" placeholder="Username"><br>
-    <input type="password" id="auth-password" placeholder="Password"><br>
-    <button onclick="login()">Login</button>
-    <button onclick="signup()">Sign Up (Reseller)</button>
-  </div>
+<div class="panel hidden" id="reseller-panel">
+  <h2>Reseller Panel</h2>
+  <p>Welcome, <span id="reseller-user"></span>!</p>
+  <h3>Products</h3>
+  <ul>
+    <li>Nexus <button onclick="buy('Nexus')">Buy</button></li>
+    <li>Nexus Lite <button onclick="buy('Nexus Lite')">Buy</button></li>
+    <li>Striker <button onclick="buy('Striker')">Buy</button></li>
+    <li>More coming soon...</li>
+  </ul>
+</div>
 
-  <div id="panel-section" class="hidden">
-    <div class="top-bar">
-      <h2>Welcome, <span id="username-display"></span>!</h2>
-      <button onclick="logout()" class="logout-btn">Logout</button>
-    </div>
+<div class="panel hidden" id="admin-panel">
+  <h2>Admin Panel</h2>
+  <h3>Keys</h3>
+  <table id="keys-table">
+    <thead>
+      <tr><th>Product</th><th>Key</th><th>Duration</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <input type="text" id="product" placeholder="Product">
+  <input type="text" id="key" placeholder="Key">
+  <input type="text" id="duration" placeholder="Duration (days/weeks/months)">
+  <button onclick="addKey()">Add Key</button>
+  <h3>Users</h3>
+  <ul id="user-list"></ul>
+</div>
 
-    <div id="product-list"></div>
+<span id="admin-login-link" onclick="adminLoginPrompt()">Admin Login</span>
 
-    <div id="admin-controls" class="admin-tools hidden">
-      <h3>Add Product</h3>
-      <input type="text" id="product-name" placeholder="Product Name">
-      <input type="number" id="product-price" placeholder="Price">
-      <button onclick="addProduct()">Add Product</button>
-    </div>
-  </div>
+<script>
+  const productBuyURL = "https://dexorapanel.mysellauth.com/";
 
-  <script>
-    const ADMIN_USERNAME = 'admin';
-    const ADMIN_PASSWORD = 'admin123';
+  function saveToLocal(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
 
-    const authSection = document.getElementById('auth-section');
-    const panelSection = document.getElementById('panel-section');
-    const productList = document.getElementById('product-list');
-    const adminControls = document.getElementById('admin-controls');
-    const usernameDisplay = document.getElementById('username-display');
+  function getFromLocal(key) {
+    return JSON.parse(localStorage.getItem(key) || "null");
+  }
 
-    let currentUser = null;
+  function signup() {
+    const users = getFromLocal('users') || {};
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    if (users[user]) return alert("User already exists!");
+    users[user] = { password: pass };
+    saveToLocal('users', users);
+    alert("Signed up successfully! Please log in.");
+  }
 
-    function signup() {
-      const username = document.getElementById('auth-username').value.trim();
-      const password = document.getElementById('auth-password').value.trim();
-
-      if (!username || !password) return alert("Fill out both fields!");
-
-      let users = JSON.parse(localStorage.getItem('users')) || {};
-      if (users[username]) return alert("User already exists!");
-
-      users[username] = { password, role: 'reseller' };
-      localStorage.setItem('users', JSON.stringify(users));
-      alert("Signed up! You can now log in.");
+  function login() {
+    const users = getFromLocal('users') || {};
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    if (users[user]?.password === pass) {
+      document.getElementById('auth-container').classList.add('hidden');
+      document.getElementById('reseller-user').textContent = user;
+      document.getElementById('reseller-panel').classList.remove('hidden');
+    } else {
+      alert("Invalid credentials!");
     }
+  }
 
-    function login() {
-      const username = document.getElementById('auth-username').value.trim();
-      const password = document.getElementById('auth-password').value.trim();
-
-      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-        currentUser = { username, role: 'admin' };
-        loadPanel();
-        return;
-      }
-
-      const users = JSON.parse(localStorage.getItem('users')) || {};
-      if (!users[username] || users[username].password !== password) {
-        return alert("Invalid credentials!");
-      }
-
-      currentUser = { username, role: users[username].role };
-      loadPanel();
+  function adminLoginPrompt() {
+    const pass = prompt("Enter admin password:");
+    if (pass === "admin123") { // change to secure
+      document.getElementById('auth-container').classList.add('hidden');
+      document.getElementById('admin-panel').classList.remove('hidden');
+      loadKeys();
+      loadUsers();
+    } else {
+      alert("Incorrect password.");
     }
+  }
 
-    function logout() {
-      currentUser = null;
-      panelSection.classList.add('hidden');
-      authSection.classList.remove('hidden');
-      productList.innerHTML = '';
+  function buy(product) {
+    window.open(productBuyURL + "?product=" + encodeURIComponent(product));
+  }
+
+  function addKey() {
+    const table = document.getElementById('keys-table').querySelector('tbody');
+    const product = document.getElementById('product').value;
+    const key = document.getElementById('key').value;
+    const duration = document.getElementById('duration').value;
+    const row = `<tr><td>${product}</td><td>${key}</td><td>${duration}</td></tr>`;
+    table.innerHTML += row;
+    const keys = getFromLocal('keys') || [];
+    keys.push({ product, key, duration });
+    saveToLocal('keys', keys);
+  }
+
+  function loadKeys() {
+    const table = document.getElementById('keys-table').querySelector('tbody');
+    table.innerHTML = "";
+    const keys = getFromLocal('keys') || [];
+    keys.forEach(k => {
+      table.innerHTML += `<tr><td>${k.product}</td><td>${k.key}</td><td>${k.duration}</td></tr>`;
+    });
+  }
+
+  function loadUsers() {
+    const users = getFromLocal('users') || {};
+    const userList = document.getElementById('user-list');
+    userList.innerHTML = "";
+    for (const user in users) {
+      userList.innerHTML += `<li>${user}</li>`;
     }
-
-    function loadPanel() {
-      authSection.classList.add('hidden');
-      panelSection.classList.remove('hidden');
-      usernameDisplay.textContent = currentUser.username;
-      if (currentUser.role === 'admin') {
-        adminControls.classList.remove('hidden');
-      } else {
-        adminControls.classList.add('hidden');
-      }
-      displayProducts();
-    }
-
-    function displayProducts() {
-      const products = JSON.parse(localStorage.getItem('products')) || [];
-      productList.innerHTML = '';
-      products.forEach((p, index) => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        div.innerHTML = `<strong>${p.name}</strong> - $${p.price}`;
-        if (currentUser.role === 'admin') {
-          div.innerHTML += `
-            <button onclick="editProduct(${index})">Edit</button>
-            <button onclick="deleteProduct(${index})">Delete</button>`;
-        }
-        productList.appendChild(div);
-      });
-    }
-
-    function addProduct() {
-      const name = document.getElementById('product-name').value.trim();
-      const price = parseFloat(document.getElementById('product-price').value);
-      if (!name || isNaN(price)) return alert("Enter valid product data!");
-
-      const products = JSON.parse(localStorage.getItem('products')) || [];
-      products.push({ name, price });
-      localStorage.setItem('products', JSON.stringify(products));
-      displayProducts();
-    }
-
-    function editProduct(index) {
-      const products = JSON.parse(localStorage.getItem('products')) || [];
-      const newName = prompt("New name:", products[index].name);
-      const newPrice = prompt("New price:", products[index].price);
-      if (newName && !isNaN(parseFloat(newPrice))) {
-        products[index] = { name: newName, price: parseFloat(newPrice) };
-        localStorage.setItem('products', JSON.stringify(products));
-        displayProducts();
-      }
-    }
-
-    function deleteProduct(index) {
-      const products = JSON.parse(localStorage.getItem('products')) || [];
-      if (confirm("Delete this product?")) {
-        products.splice(index, 1);
-        localStorage.setItem('products', JSON.stringify(products));
-        displayProducts();
-      }
-    }
-  </script>
+  }
+</script>
 </body>
 </html>
