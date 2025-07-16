@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cheat Reseller Panel - All in One</title>
+<style>
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin:0; padding:0; height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121212;
+    color: #eee;
+  }
+
+  /* Container */
+  #app {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 20px 50px 20px;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 900;
+    color: #5af;
+    letter-spacing: 4px;
+    margin-bottom: 30px;
+  }
+
+  /* Login box */
+  #login-box {
+    max-width: 350px;
+    margin: 80px auto;
+    background: #1e1e1e;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px #5af;
+  }
+  #login-box h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #5af;
+  }
+  #login-box input[type="text"],
+  #login-box input[type="password"] {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0 20px;
+    border-radius: 8px;
+    border: none;
+    background: #333;
+    color: #eee;
+    font-size: 16px;
+  }
+  #login-box button {
+    width: 100%;
+    padding: 14px;
+    font-weight: 700;
+    font-size: 18px;
+    color: #121212;
+    background: #5af;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  #login-box button:hover {
+    background: #3a7fff;
+  }
+
+  /* Main panel */
+  #panel {
+    display: none;
+  }
+
+  /* Navigation tabs */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    margin-bottom: 30px;
+    user-select: none;
+  }
+  nav button {
+    background: #1e1e1e;
+    border: none;
+    color: #aaa;
+    padding: 14px 26px;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+  }
+  nav button.active {
+    background: #5af;
+    color: #121212;
+  }
+  nav button:hover:not(.active) {
+    background: #333;
+    color: #5af;
+  }
+
+  /* Sections */
+  section {
+    background: #1e1e1e;
+    padding: 25px 30px;
+    border-radius: 0 12px 12px 12px;
+    box-shadow: 0 0 25px #222 inset;
+  }
+  section:not(.active) {
+    display: none;
+  }
+  section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #5af;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #222;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 14px 12px;
+    text-align: center;
+    border-bottom: 1px solid #333;
+  }
+  th {
+    background: #333;
+  }
+  tbody tr:hover {
+    background: #2f2f2f;
+  }
+
+  /* Buttons */
+  table button, form button {
+    background: #5af;
+    border: none;
+    padding: 9px 15px;
+    color: #121212;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  table button:hover, form button:hover {
+    background: #3a7fff;
+  }
+
+  /* Forms */
+  form label {
+    display: block;
+    margin-top: 14px;
+    font-weight: 700;
+  }
+  form input[type="text"],
+  form input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #333;
+    color: #eee;
+    font-size: 16px;
+    margin-top: 6px;
+  }
+  form input[type="submit"] {
+    margin-top: 24px;
+  }
+
+  /* Stats boxes */
+  .stats {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .stat-box {
+    background: #222;
+    flex: 1 1 180px;
+    padding: 22px;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .stat-box h3 {
+    font-size: 42px;
+    margin: 8px 0;
+    color: #5af;
+  }
+  .stat-box p {
+    font-size: 18px;
+    color: #ccc;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    nav {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .stats {
+      flex-direction: column;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- LOGIN -->
+  <div id="login-box">
+    <h2>Reseller Login</h2>
+    <form id="login-form">
+      <input type="text" id="username" placeholder="Username" autocomplete="username" required />
+      <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <!-- MAIN PANEL -->
+  <div id="panel">
+    <header>Cheat Reseller Panel</header>
+
+    <nav>
+      <button class="tab-btn active" data-tab="products">Products</button>
+      <button class="tab-btn" data-tab="keys">License Keys</button>
+      <button class="tab-btn" data-tab="stats">Sales Stats</button>
+      <button class="tab-btn" data-tab="settings">Settings</button>
+      <button id="logout-btn" style="margin-left:auto; background:#f55; color:#fff;">Logout</button>
+    </nav>
+
+    <section id="products" class="active">
+      <h2>Available Products</h2>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Name</th><th>Price ($)</th><th>Stock</th><th>Action</th></tr>
+        </thead>
+        <tbody id="product-list">
+          <tr><td>1</td><td>Ultimate Cheat</td><td>50</td><td>100</td><td><button>Buy</button></td></tr>
+          <tr><td>2</td><td>Stealth Hack</td><td>35</td><td>60</td><td><button>Buy</button></td></tr>
+          <tr><td>3</td><td>Silent Aimbot</td><td>40</td><td>80</td><td><button>Buy</button></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="keys">
+      <h2>License Keys</h2>
+      <table>
+        <thead>
+          <tr><th>Product ID</th><th>Key</th><th>Used</th></tr>
+        </thead>
+        <tbody id="key-list">
+          <tr><td>1</td><td>ABC123-ULTIMATE</td><td>No</td></tr>
+          <tr><td>2</td><td>STEALTH-KEY-999</td><td>Yes</td></tr>
+          <tr><td>3</td><td>SILENT-AIM-2025</td><td>No</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:40px; color:#5af;">Add License Key</h3>
+      <form id="add-key-form">
+        <label for="add-product-id">Product ID</label>
+        <input type="number" id="add-product-id" placeholder="e.g. 1" required />
+        <label for="add-license-key">License Key</label>
+        <input type="text" id="add-license-key" placeholder="Enter license key" required />
+        <button type="submit">Add Key</button>
+      </form>
+    </section>
+
+    <section id="stats">
+      <h2>Sales Stats</h2>
+      <div class="stats">
+        <div class="stat-box">
+          <h3>120</h3>
+          <p>Sales This Month</p>
+        </div>
+        <div class="stat-box">
+          <h3>$5,600</h3>
+          <p>Revenue</p>
+        </div>
+        <div class="stat-box">
+          <h3>80</h3>
+          <p>Active Licenses</p>
+        </div>
+        <div class="stat-box">
+          <h3>15</h3>
+          <p>Pending Orders</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="settings">
+      <h2>Settings</h2>
+      <form id="settings-form">
+        <label for="reseller-name">Reseller Name</label>
+        <input type="text" id="reseller-name" value="JohnDoe" />
+
+        <label for="email">Email</label>
+        <input type="text" id="email" value="john@example.com" />
+
+        <label for="payment-method">Payment Method</label>
+        <input type="text" id="payment-method" value="PayPal" />
+
+        <button type="submit">Save Settings</button>
+      </form>
+    </section>
+
+  </div>
+
+</div>
+
+<script>
+  // Tab switching
+  const tabs = document.querySelectorAll('nav .tab-btn');
+  const sections = document.querySelectorAll('section');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      sections.forEach(sec => {
+        sec.classList.remove('active');
+      });
+      const target = document.getElementById(tab.dataset.tab);
+      target.classList.add('active');
+    });
+  });
+
+  // Fake login
+  const loginForm = document.getElementById('login-form');
+  const loginBox = document.getElementById('login-box');
+  const panel = document.getElementById('panel');
+
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    // Basic fake check
+    if (username === "reseller" && password === "password") {
+      loginBox.style.display = 'none';
+      panel.style.display = 'block';
+    } else {
+      alert("Invalid username or password.\nTry: reseller / password");
+    }
+  });
+
+  // Logout button
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    panel.style.display = 'none';
+    loginBox.style.display = 'block';
+    loginForm.reset();
+  });
+
+  // Add License Key form
+  const addKeyForm = document.getElementById('add-key-form');
+  const keyList = document.getElementById('key-list');
+
+  addKeyForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const prodId = document.getElementById('add-product-id').value.trim();
+    const key = document.getElementById('add-license-key').value.trim();
+
+    if(prodId && key) {
+      // Append new row (not persistent, just UI)
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${prodId}</td><td>${key}</td><td>No</td>`;
+      keyList.appendChild(tr);
+
+      addKeyForm.reset();
+      alert("License key added!");
+    }
+  });
+
+  // Settings form (just UI)
+  const settingsForm = document.getElementById('settings-form');
+  settingsForm.addEventListener('submit', e => {
+    e.preventDefault();
+    alert("Settings saved (not really, this is static UI).");
+  });
+</script>
+
+</body>
+</html>
