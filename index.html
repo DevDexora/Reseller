@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reseller Panel with Admin Login</title>
+  <title>Reseller Panel with Roles</title>
   <style>
-    /* Basic styling */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #121212;
@@ -26,7 +25,6 @@
       margin-bottom: 30px;
       position: relative;
     }
-    /* Login/signup/logout buttons container */
     #auth-buttons {
       position: absolute;
       top: 20px;
@@ -46,7 +44,6 @@
     button:hover {
       background: #3a7fff;
     }
-
     nav {
       display: flex;
       gap: 16px;
@@ -162,7 +159,6 @@
       background: #444;
       color: #eee;
     }
-    /* Modal overlay */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -202,9 +198,9 @@
     .modal .close-btn:hover {
       color: #5af;
     }
-    /* View only styling for inputs */
     .view-only input,
-    .view-only button.action-btn {
+    .view-only button.action-btn,
+    .view-only form input[type="submit"] {
       pointer-events: none;
       opacity: 0.5;
     }
@@ -215,8 +211,9 @@
     <header>
       Reseller Panel
       <div id="auth-buttons">
-        <button id="login-btn">Login</button>
-        <button id="signup-btn">Sign Up</button>
+        <button id="reseller-login-btn">Reseller Login</button>
+        <button id="reseller-signup-btn">Reseller Sign Up</button>
+        <button id="admin-login-btn">Admin Login</button>
       </div>
     </header>
 
@@ -279,39 +276,54 @@
     </section>
   </div>
 
-  <!-- Login Modal -->
-  <div id="login-modal" class="modal-overlay">
+  <!-- Reseller Login Modal -->
+  <div id="reseller-login-modal" class="modal-overlay">
     <div class="modal">
-      <button class="close-btn" id="login-close">&times;</button>
-      <h3>Admin Login</h3>
-      <form id="login-form">
-        <label for="login-username">Username</label>
-        <input type="text" id="login-username" required />
-        <label for="login-password">Password</label>
-        <input type="password" id="login-password" required />
+      <button class="close-btn" id="reseller-login-close">&times;</button>
+      <h3>Reseller Login</h3>
+      <form id="reseller-login-form">
+        <label for="reseller-login-username">Username</label>
+        <input type="text" id="reseller-login-username" required />
+        <label for="reseller-login-password">Password</label>
+        <input type="password" id="reseller-login-password" required />
         <input type="submit" value="Login" />
       </form>
       <p style="text-align:center; margin-top: 10px; color: #aaa;">
-        Don't have an account? <button id="show-signup" style="background:none; border:none; color:#5af; cursor:pointer; font-weight:bold;">Sign Up</button>
+        Don't have an account? <button id="show-reseller-signup" style="background:none; border:none; color:#5af; cursor:pointer; font-weight:bold;">Sign Up</button>
       </p>
     </div>
   </div>
 
-  <!-- Signup Modal -->
-  <div id="signup-modal" class="modal-overlay">
+  <!-- Reseller Signup Modal -->
+  <div id="reseller-signup-modal" class="modal-overlay">
     <div class="modal">
-      <button class="close-btn" id="signup-close">&times;</button>
-      <h3>Admin Sign Up</h3>
-      <form id="signup-form">
-        <label for="signup-username">Username</label>
-        <input type="text" id="signup-username" required />
-        <label for="signup-password">Password</label>
-        <input type="password" id="signup-password" required />
+      <button class="close-btn" id="reseller-signup-close">&times;</button>
+      <h3>Reseller Sign Up</h3>
+      <form id="reseller-signup-form">
+        <label for="reseller-signup-username">Username</label>
+        <input type="text" id="reseller-signup-username" required />
+        <label for="reseller-signup-password">Password</label>
+        <input type="password" id="reseller-signup-password" required />
         <input type="submit" value="Sign Up" />
       </form>
       <p style="text-align:center; margin-top: 10px; color: #aaa;">
-        Already have an account? <button id="show-login" style="background:none; border:none; color:#5af; cursor:pointer; font-weight:bold;">Login</button>
+        Already have an account? <button id="show-reseller-login" style="background:none; border:none; color:#5af; cursor:pointer; font-weight:bold;">Login</button>
       </p>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal -->
+  <div id="admin-login-modal" class="modal-overlay">
+    <div class="modal">
+      <button class="close-btn" id="admin-login-close">&times;</button>
+      <h3>Admin Login</h3>
+      <form id="admin-login-form">
+        <label for="admin-login-username">Username</label>
+        <input type="text" id="admin-login-username" required />
+        <label for="admin-login-password">Password</label>
+        <input type="password" id="admin-login-password" required />
+        <input type="submit" value="Login" />
+      </form>
     </div>
   </div>
 
@@ -329,12 +341,16 @@
     });
   });
 
-  // localStorage keys
+  // Storage keys
   const STORAGE_PRODUCTS = 'reseller_products';
   const STORAGE_KEYS = 'reseller_license_keys';
   const STORAGE_SETTINGS = 'reseller_settings';
-  const STORAGE_ADMINS = 'reseller_admins';
-  const STORAGE_CURRENT_ADMIN = 'reseller_current_admin';
+  const STORAGE_RESELLERS = 'reseller_users'; // resellers
+  const STORAGE_CURRENT_USER = 'reseller_current_user'; // logged in user
+  const STORAGE_ADMIN_USER = 'reseller_admin_user'; // logged in admin
+
+  // Hardcoded admin credentials for demo
+  const ADMIN_CREDENTIALS = {username: 'admin', password: 'admin123'};
 
   // Data
   let products = JSON.parse(localStorage.getItem(STORAGE_PRODUCTS)) || [
@@ -350,8 +366,9 @@
     resellerEmail: '',
     paymentMethod: ''
   };
-  let admins = JSON.parse(localStorage.getItem(STORAGE_ADMINS)) || [];
-  let currentAdmin = localStorage.getItem(STORAGE_CURRENT_ADMIN) || null;
+  let resellers = JSON.parse(localStorage.getItem(STORAGE_RESELLERS)) || [];
+  let currentUser = JSON.parse(localStorage.getItem(STORAGE_CURRENT_USER)) || null;
+  let adminUser = JSON.parse(localStorage.getItem(STORAGE_ADMIN_USER)) || null;
 
   // Save helpers
   function saveProducts() {
@@ -363,18 +380,34 @@
   function saveSettings() {
     localStorage.setItem(STORAGE_SETTINGS, JSON.stringify(settings));
   }
-  function saveAdmins() {
-    localStorage.setItem(STORAGE_ADMINS, JSON.stringify(admins));
+  function saveResellers() {
+    localStorage.setItem(STORAGE_RESELLERS, JSON.stringify(resellers));
   }
-  function saveCurrentAdmin() {
-    if(currentAdmin)
-      localStorage.setItem(STORAGE_CURRENT_ADMIN, currentAdmin);
+  function saveCurrentUser() {
+    if(currentUser)
+      localStorage.setItem(STORAGE_CURRENT_USER, JSON.stringify(currentUser));
     else
-      localStorage.removeItem(STORAGE_CURRENT_ADMIN);
+      localStorage.removeItem(STORAGE_CURRENT_USER);
+  }
+  function saveAdminUser() {
+    if(adminUser)
+      localStorage.setItem(STORAGE_ADMIN_USER, JSON.stringify(adminUser));
+    else
+      localStorage.removeItem(STORAGE_ADMIN_USER);
   }
 
-  // Render products table
+  // Check roles
+  function isAdmin() {
+    return adminUser !== null;
+  }
+  function isReseller() {
+    return currentUser !== null;
+  }
+
+  // Render tables and forms
   const productsTableBody = document.querySelector('#products-table tbody');
+  const keysTableBody = document.querySelector('#keys-table tbody');
+
   function renderProducts() {
     productsTableBody.innerHTML = '';
     products.forEach(product => {
@@ -390,8 +423,6 @@
     });
   }
 
-  // Render license keys table
-  const keysTableBody = document.querySelector('#keys-table tbody');
   function renderKeys() {
     keysTableBody.innerHTML = '';
     licenseKeys.forEach(key => {
@@ -407,26 +438,18 @@
     });
   }
 
-  // Render settings form
   function renderSettings() {
     document.getElementById('reseller-name').value = settings.resellerName;
     document.getElementById('reseller-email').value = settings.resellerEmail;
     document.getElementById('payment-method').value = settings.paymentMethod;
 
-    // Disable inputs if not admin
     ['reseller-name', 'reseller-email', 'payment-method'].forEach(id => {
       document.getElementById(id).disabled = !isAdmin();
     });
-    // Disable save button if not admin
     document.querySelector('#settings-form input[type="submit"]').disabled = !isAdmin();
   }
 
-  // Check if logged in as admin
-  function isAdmin() {
-    return currentAdmin !== null;
-  }
-
-  // Update product on input change
+  // Editing handlers
   productsTableBody.addEventListener('input', e => {
     if(!isAdmin()) return;
     if(e.target.classList.contains('edit-input')) {
@@ -440,45 +463,6 @@
       }
     }
   });
-
-  // Delete product
-  productsTableBody.addEventListener('click', e => {
-    if(!isAdmin()) return;
-    if(e.target.classList.contains('delete-product')) {
-      const id = Number(e.target.dataset.id);
-      products = products.filter(p => p.id !== id);
-      saveProducts();
-      renderProducts();
-
-      // Also delete license keys related to this product
-      licenseKeys = licenseKeys.filter(k => k.productId !== id);
-      saveKeys();
-      renderKeys();
-    }
-  });
-
-  // Add product form
-  const addProductForm = document.getElementById('add-product-form');
-  addProductForm.addEventListener('submit', e => {
-    e.preventDefault();
-    if(!isAdmin()) {
-      alert('Only admins can add products!');
-      return;
-    }
-    const name = document.getElementById('product-name').value.trim();
-    const price = parseFloat(document.getElementById('product-price').value);
-    const stock = parseInt(document.getElementById('product-stock').value);
-
-    if(name && !isNaN(price) && !isNaN(stock)) {
-      const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
-      products.push({id: newId, name, price, stock});
-      saveProducts();
-      renderProducts();
-      addProductForm.reset();
-    }
-  });
-
-  // License keys editing
   keysTableBody.addEventListener('input', e => {
     if(!isAdmin()) return;
     if(e.target.classList.contains('edit-input')) {
@@ -492,7 +476,6 @@
       }
     }
   });
-
   keysTableBody.addEventListener('change', e => {
     if(!isAdmin()) return;
     if(e.target.classList.contains('used-checkbox')) {
@@ -505,7 +488,16 @@
     }
   });
 
-  // Delete license key
+  // Delete buttons
+  productsTableBody.addEventListener('click', e => {
+    if(!isAdmin()) return;
+    if(e.target.classList.contains('delete-product')) {
+      const id = Number(e.target.dataset.id);
+      products = products.filter(p => p.id !== id);
+      saveProducts();
+      renderProducts();
+    }
+  });
   keysTableBody.addEventListener('click', e => {
     if(!isAdmin()) return;
     if(e.target.classList.contains('delete-key')) {
@@ -516,171 +508,199 @@
     }
   });
 
-  // Add license key form
-  const addKeyForm = document.getElementById('add-key-form');
-  addKeyForm.addEventListener('submit', e => {
+  // Add new product
+  document.getElementById('add-product-form').addEventListener('submit', e => {
     e.preventDefault();
     if(!isAdmin()) {
-      alert('Only admins can add license keys!');
+      alert('Only admin can add products.');
+      return;
+    }
+    const name = document.getElementById('product-name').value.trim();
+    const price = parseFloat(document.getElementById('product-price').value);
+    const stock = parseInt(document.getElementById('product-stock').value);
+    if(!name || isNaN(price) || isNaN(stock)) {
+      alert('Please enter valid product details.');
+      return;
+    }
+    const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+    products.push({id: newId, name, price, stock});
+    saveProducts();
+    renderProducts();
+    e.target.reset();
+  });
+
+  // Add new license key
+  document.getElementById('add-key-form').addEventListener('submit', e => {
+    e.preventDefault();
+    if(!isAdmin()) {
+      alert('Only admin can add license keys.');
       return;
     }
     const productId = parseInt(document.getElementById('key-product-id').value);
     const keyVal = document.getElementById('license-key').value.trim();
     const used = document.getElementById('license-used').checked;
-    if(!isNaN(productId) && keyVal) {
-      const newId = licenseKeys.length ? Math.max(...licenseKeys.map(k => k.id)) + 1 : 1;
-      licenseKeys.push({id: newId, productId, key: keyVal, used});
-      saveKeys();
-      renderKeys();
-      addKeyForm.reset();
+    if(isNaN(productId) || !keyVal) {
+      alert('Please enter valid license key details.');
+      return;
     }
+    const newId = licenseKeys.length ? Math.max(...licenseKeys.map(k => k.id)) + 1 : 1;
+    licenseKeys.push({id: newId, productId, key: keyVal, used});
+    saveKeys();
+    renderKeys();
+    e.target.reset();
   });
 
   // Settings form submit
-  const settingsForm = document.getElementById('settings-form');
-  settingsForm.addEventListener('submit', e => {
+  document.getElementById('settings-form').addEventListener('submit', e => {
     e.preventDefault();
     if(!isAdmin()) {
-      alert('Only admins can save settings!');
+      alert('Only admin can save settings.');
       return;
     }
     settings.resellerName = document.getElementById('reseller-name').value.trim();
     settings.resellerEmail = document.getElementById('reseller-email').value.trim();
     settings.paymentMethod = document.getElementById('payment-method').value.trim();
     saveSettings();
-    alert('Settings saved!');
+    alert('Settings saved.');
   });
 
-  // Login/signup modal logic
-  const loginModal = document.getElementById('login-modal');
-  const signupModal = document.getElementById('signup-modal');
-  const loginBtn = document.getElementById('login-btn');
-  const signupBtn = document.getElementById('signup-btn');
-  const loginClose = document.getElementById('login-close');
-  const signupClose = document.getElementById('signup-close');
-  const showSignupBtn = document.getElementById('show-signup');
-  const showLoginBtn = document.getElementById('show-login');
+  // Auth buttons & modals
+  const resellerLoginBtn = document.getElementById('reseller-login-btn');
+  const resellerSignupBtn = document.getElementById('reseller-signup-btn');
+  const adminLoginBtn = document.getElementById('admin-login-btn');
 
-  loginBtn.addEventListener('click', () => {
-    loginModal.classList.add('active');
-  });
-  signupBtn.addEventListener('click', () => {
-    signupModal.classList.add('active');
-  });
-  loginClose.addEventListener('click', () => {
-    loginModal.classList.remove('active');
-  });
-  signupClose.addEventListener('click', () => {
-    signupModal.classList.remove('active');
-  });
-  showSignupBtn.addEventListener('click', () => {
-    loginModal.classList.remove('active');
-    signupModal.classList.add('active');
-  });
-  showLoginBtn.addEventListener('click', () => {
-    signupModal.classList.remove('active');
-    loginModal.classList.add('active');
-  });
+  const resellerLoginModal = document.getElementById('reseller-login-modal');
+  const resellerSignupModal = document.getElementById('reseller-signup-modal');
+  const adminLoginModal = document.getElementById('admin-login-modal');
 
-  // Signup form
-  const signupForm = document.getElementById('signup-form');
-  signupForm.addEventListener('submit', e => {
+  const resellerLoginClose = document.getElementById('reseller-login-close');
+  const resellerSignupClose = document.getElementById('reseller-signup-close');
+  const adminLoginClose = document.getElementById('admin-login-close');
+
+  resellerLoginBtn.onclick = () => resellerLoginModal.classList.add('active');
+  resellerSignupBtn.onclick = () => resellerSignupModal.classList.add('active');
+  adminLoginBtn.onclick = () => adminLoginModal.classList.add('active');
+
+  resellerLoginClose.onclick = () => resellerLoginModal.classList.remove('active');
+  resellerSignupClose.onclick = () => resellerSignupModal.classList.remove('active');
+  adminLoginClose.onclick = () => adminLoginModal.classList.remove('active');
+
+  // Show switch between reseller login/signup in modals
+  document.getElementById('show-reseller-signup').onclick = () => {
+    resellerLoginModal.classList.remove('active');
+    resellerSignupModal.classList.add('active');
+  };
+  document.getElementById('show-reseller-login').onclick = () => {
+    resellerSignupModal.classList.remove('active');
+    resellerLoginModal.classList.add('active');
+  };
+
+  // Reseller sign up form
+  document.getElementById('reseller-signup-form').addEventListener('submit', e => {
     e.preventDefault();
-    const username = document.getElementById('signup-username').value.trim();
-    const password = document.getElementById('signup-password').value.trim();
+    const username = document.getElementById('reseller-signup-username').value.trim();
+    const password = document.getElementById('reseller-signup-password').value.trim();
     if(!username || !password) {
-      alert('Please enter username and password');
+      alert('Enter username and password.');
       return;
     }
-    if(admins.find(a => a.username === username)) {
-      alert('Username already exists');
+    if(resellers.find(u => u.username === username)) {
+      alert('Username taken.');
       return;
     }
-    admins.push({username, password});
-    saveAdmins();
-    alert('Account created! You can now login.');
-    signupModal.classList.remove('active');
-    loginModal.classList.add('active');
-    signupForm.reset();
+    resellers.push({username, password});
+    saveResellers();
+    alert('Account created! Please login.');
+    resellerSignupModal.classList.remove('active');
+    resellerLoginModal.classList.add('active');
+    e.target.reset();
   });
 
-  // Login form
-  const loginForm = document.getElementById('login-form');
-  loginForm.addEventListener('submit', e => {
+  // Reseller login form
+  document.getElementById('reseller-login-form').addEventListener('submit', e => {
     e.preventDefault();
-    const username = document.getElementById('login-username').value.trim();
-    const password = document.getElementById('login-password').value.trim();
-    const admin = admins.find(a => a.username === username && a.password === password);
-    if(!admin) {
-      alert('Invalid username or password');
+    const username = document.getElementById('reseller-login-username').value.trim();
+    const password = document.getElementById('reseller-login-password').value.trim();
+    const user = resellers.find(u => u.username === username && u.password === password);
+    if(!user) {
+      alert('Invalid reseller credentials.');
       return;
     }
-    currentAdmin = username;
-    saveCurrentAdmin();
-    alert('Logged in as admin: ' + username);
-    loginModal.classList.remove('active');
-    updateUIForAdmin();
+    currentUser = user;
+    saveCurrentUser();
+    alert('Logged in as reseller: ' + username);
+    resellerLoginModal.classList.remove('active');
+    updateUI();
+  });
+
+  // Admin login form
+  document.getElementById('admin-login-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const username = document.getElementById('admin-login-username').value.trim();
+    const password = document.getElementById('admin-login-password').value.trim();
+    if(username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+      adminUser = {username};
+      saveAdminUser();
+      alert('Admin logged in!');
+      adminLoginModal.classList.remove('active');
+      updateUI();
+    } else {
+      alert('Invalid admin credentials.');
+    }
   });
 
   // Logout button
-  function addLogoutButton() {
+  function addLogoutBtn() {
     const authDiv = document.getElementById('auth-buttons');
     authDiv.innerHTML = '';
-    const userSpan = document.createElement('span');
-    userSpan.textContent = `Admin: ${currentAdmin}`;
-    userSpan.style.color = '#5af';
-    userSpan.style.fontWeight = '700';
-    userSpan.style.marginRight = '10px';
-
-    const logoutBtn = document.createElement('button');
-    logoutBtn.textContent = 'Logout';
-    logoutBtn.onclick = () => {
-      currentAdmin = null;
-      saveCurrentAdmin();
-      alert('Logged out');
-      updateUIForAdmin();
-    };
-    authDiv.appendChild(userSpan);
-    authDiv.appendChild(logoutBtn);
-  }
-
-  // Update UI depending on admin login status
-  function updateUIForAdmin() {
     if(isAdmin()) {
-      addLogoutButton();
-      // Show admin controls
-      document.getElementById('add-product-form').style.display = 'block';
-      document.getElementById('add-key-form').style.display = 'block';
-      // Make products and keys editable
-      renderProducts();
-      renderKeys();
-      renderSettings();
-      document.body.classList.remove('view-only');
+      authDiv.innerHTML = `<span style="color:#5af; font-weight:700; margin-right:10px;">Admin: ${adminUser.username}</span><button id="logout-btn">Logout</button>`;
+      document.getElementById('logout-btn').onclick = () => {
+        adminUser = null;
+        saveAdminUser();
+        updateUI();
+      };
+    } else if(isReseller()) {
+      authDiv.innerHTML = `<span style="color:#5af; font-weight:700; margin-right:10px;">Reseller: ${currentUser.username}</span><button id="logout-btn">Logout</button>`;
+      document.getElementById('logout-btn').onclick = () => {
+        currentUser = null;
+        saveCurrentUser();
+        updateUI();
+      };
     } else {
-      // Show login/signup buttons
-      const authDiv = document.getElementById('auth-buttons');
       authDiv.innerHTML = `
-        <button id="login-btn">Login</button>
-        <button id="signup-btn">Sign Up</button>
+        <button id="reseller-login-btn">Reseller Login</button>
+        <button id="reseller-signup-btn">Reseller Sign Up</button>
+        <button id="admin-login-btn">Admin Login</button>
       `;
-      // Rebind login/signup button listeners
-      document.getElementById('login-btn').addEventListener('click', () => loginModal.classList.add('active'));
-      document.getElementById('signup-btn').addEventListener('click', () => signupModal.classList.add('active'));
-      // Hide admin controls
-      document.getElementById('add-product-form').style.display = 'none';
-      document.getElementById('add-key-form').style.display = 'none';
-      // Render as view-only
-      renderProducts();
-      renderKeys();
-      renderSettings();
-      document.body.classList.add('view-only');
+      // Rebind buttons
+      document.getElementById('reseller-login-btn').onclick = () => resellerLoginModal.classList.add('active');
+      document.getElementById('reseller-signup-btn').onclick = () => resellerSignupModal.classList.add('active');
+      document.getElementById('admin-login-btn').onclick = () => adminLoginModal.classList.add('active');
     }
   }
 
-  // Initial render
-  updateUIForAdmin();
+  // Update UI depending on role
+  function updateUI() {
+    addLogoutBtn();
+
+    if(isAdmin()) {
+      document.body.classList.remove('view-only');
+      document.getElementById('add-product-form').style.display = 'block';
+      document.getElementById('add-key-form').style.display = 'block';
+    } else {
+      // Reseller or nobody: view only
+      document.body.classList.add('view-only');
+      document.getElementById('add-product-form').style.display = 'none';
+      document.getElementById('add-key-form').style.display = 'none';
+    }
+    renderProducts();
+    renderKeys();
+    renderSettings();
+  }
+
+  updateUI();
 
 </script>
-
 </body>
 </html>
