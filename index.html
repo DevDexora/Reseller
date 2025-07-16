@@ -1,240 +1,342 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Live Editable Cheat Reseller Panel</title>
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #121212;
-    color: #eee;
-    margin: 0; padding: 0;
-  }
-  #app {
-    max-width: 1000px;
-    margin: 30px auto;
-    padding: 20px;
-  }
-  header {
-    font-size: 32px;
-    font-weight: 900;
-    color: #5af;
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  nav {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-  nav button {
-    background: #1e1e1e;
-    border: none;
-    color: #aaa;
-    padding: 12px 20px;
-    font-weight: 700;
-    font-size: 16px;
-    border-radius: 8px 8px 0 0;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  nav button.active {
-    background: #5af;
-    color: #121212;
-  }
-  nav button:hover:not(.active) {
-    background: #333;
-    color: #5af;
-  }
-  section {
-    background: #1e1e1e;
-    padding: 25px 30px;
-    border-radius: 0 12px 12px 12px;
-    box-shadow: 0 0 25px #222 inset;
-    display: none;
-  }
-  section.active {
-    display: block;
-  }
-  h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: #5af;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #222;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  th, td {
-    padding: 12px 10px;
-    text-align: center;
-    border-bottom: 1px solid #333;
-  }
-  th {
-    background: #333;
-  }
-  tbody tr:hover {
-    background: #2f2f2f;
-  }
-  button.action-btn {
-    background: #5af;
-    border: none;
-    padding: 6px 12px;
-    color: #121212;
-    font-weight: 700;
-    border-radius: 6px;
-    cursor: pointer;
-    margin: 0 2px;
-  }
-  button.action-btn:hover {
-    background: #3a7fff;
-  }
-  form label {
-    display: block;
-    margin-top: 14px;
-    font-weight: 700;
-  }
-  form input[type="text"], form input[type="number"] {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: none;
-    background: #333;
-    color: #eee;
-    font-size: 16px;
-    margin-top: 6px;
-  }
-  form input[type="submit"] {
-    margin-top: 24px;
-    background: #5af;
-    color: #121212;
-    border: none;
-    padding: 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 16px;
-    width: 100%;
-  }
-  form input[type="submit"]:hover {
-    background: #3a7fff;
-  }
-  .flex-row {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-  }
-  .edit-input {
-    width: 100px;
-    padding: 6px 8px;
-    font-size: 14px;
-    border-radius: 5px;
-    border: none;
-    background: #444;
-    color: #eee;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reseller Panel with Admin Login</title>
+  <style>
+    /* Basic styling */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
+      color: #eee;
+      margin: 0; padding: 0;
+    }
+    #app {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 20px;
+      position: relative;
+    }
+    header {
+      font-size: 32px;
+      font-weight: 900;
+      color: #5af;
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+    /* Login/signup/logout buttons container */
+    #auth-buttons {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+    button {
+      background: #5af;
+      border: none;
+      color: #121212;
+      font-weight: 700;
+      padding: 10px 16px;
+      margin-left: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #3a7fff;
+    }
+
+    nav {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    nav button {
+      background: #1e1e1e;
+      border: none;
+      color: #aaa;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    nav button.active {
+      background: #5af;
+      color: #121212;
+    }
+    nav button:hover:not(.active) {
+      background: #333;
+      color: #5af;
+    }
+    section {
+      background: #1e1e1e;
+      padding: 25px 30px;
+      border-radius: 0 12px 12px 12px;
+      box-shadow: 0 0 25px #222 inset;
+      display: none;
+    }
+    section.active {
+      display: block;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #5af;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #222;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 10px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+    }
+    th {
+      background: #333;
+    }
+    tbody tr:hover {
+      background: #2f2f2f;
+    }
+    button.action-btn {
+      background: #5af;
+      border: none;
+      padding: 6px 12px;
+      color: #121212;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0 2px;
+    }
+    button.action-btn:hover {
+      background: #3a7fff;
+    }
+    form label {
+      display: block;
+      margin-top: 14px;
+      font-weight: 700;
+    }
+    form input[type="text"], form input[type="number"], form input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      background: #333;
+      color: #eee;
+      font-size: 16px;
+      margin-top: 6px;
+    }
+    form input[type="submit"] {
+      margin-top: 24px;
+      background: #5af;
+      color: #121212;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 16px;
+      width: 100%;
+    }
+    form input[type="submit"]:hover {
+      background: #3a7fff;
+    }
+    .flex-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .edit-input {
+      width: 100px;
+      padding: 6px 8px;
+      font-size: 14px;
+      border-radius: 5px;
+      border: none;
+      background: #444;
+      color: #eee;
+    }
+    /* Modal overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal {
+      background: #222;
+      padding: 30px 30px 20px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 0 20px #111;
+      color: #eee;
+      position: relative;
+    }
+    .modal h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #5af;
+      text-align: center;
+    }
+    .modal .close-btn {
+      position: absolute;
+      top: 10px; right: 12px;
+      background: transparent;
+      border: none;
+      font-size: 28px;
+      color: #888;
+      cursor: pointer;
+    }
+    .modal .close-btn:hover {
+      color: #5af;
+    }
+    /* View only styling for inputs */
+    .view-only input,
+    .view-only button.action-btn {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+  </style>
 </head>
 <body>
+  <div id="app">
+    <header>
+      Reseller Panel
+      <div id="auth-buttons">
+        <button id="login-btn">Login</button>
+        <button id="signup-btn">Sign Up</button>
+      </div>
+    </header>
 
-<div id="app">
-  <header>Live Editable Cheat Reseller Panel</header>
-  <nav>
-    <button class="tab-btn active" data-tab="products">Products</button>
-    <button class="tab-btn" data-tab="keys">License Keys</button>
-    <button class="tab-btn" data-tab="settings">Settings</button>
-  </nav>
+    <nav>
+      <button class="tab-btn active" data-tab="products">Products</button>
+      <button class="tab-btn" data-tab="keys">License Keys</button>
+      <button class="tab-btn" data-tab="settings">Settings</button>
+    </nav>
 
-  <!-- Products -->
-  <section id="products" class="active">
-    <h2>Products</h2>
-    <table id="products-table">
-      <thead>
-        <tr><th>ID</th><th>Name</th><th>Price ($)</th><th>Stock</th><th>Actions</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <section id="products" class="active">
+      <h2>Products</h2>
+      <table id="products-table">
+        <thead>
+          <tr><th>ID</th><th>Name</th><th>Price ($)</th><th>Stock</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <h3 style="margin-top: 30px;">Add New Product</h3>
+      <form id="add-product-form">
+        <label for="product-name">Name</label>
+        <input type="text" id="product-name" placeholder="Product name" required />
+        <label for="product-price">Price ($)</label>
+        <input type="number" id="product-price" placeholder="Price" min="0" step="0.01" required />
+        <label for="product-stock">Stock</label>
+        <input type="number" id="product-stock" placeholder="Stock quantity" min="0" step="1" required />
+        <input type="submit" value="Add Product" />
+      </form>
+    </section>
 
-    <h3 style="margin-top: 30px;">Add New Product</h3>
-    <form id="add-product-form">
-      <label for="product-name">Name</label>
-      <input type="text" id="product-name" placeholder="Product name" required />
-      <label for="product-price">Price ($)</label>
-      <input type="number" id="product-price" placeholder="Price" min="0" step="0.01" required />
-      <label for="product-stock">Stock</label>
-      <input type="number" id="product-stock" placeholder="Stock quantity" min="0" step="1" required />
-      <input type="submit" value="Add Product" />
-    </form>
-  </section>
+    <section id="keys">
+      <h2>License Keys</h2>
+      <table id="keys-table">
+        <thead>
+          <tr><th>ID</th><th>Product ID</th><th>Key</th><th>Used</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <h3 style="margin-top: 30px;">Add New License Key</h3>
+      <form id="add-key-form">
+        <label for="key-product-id">Product ID</label>
+        <input type="number" id="key-product-id" placeholder="Product ID" min="1" required />
+        <label for="license-key">License Key</label>
+        <input type="text" id="license-key" placeholder="License key" required />
+        <label><input type="checkbox" id="license-used" /> Used</label>
+        <input type="submit" value="Add License Key" />
+      </form>
+    </section>
 
-  <!-- License Keys -->
-  <section id="keys">
-    <h2>License Keys</h2>
-    <table id="keys-table">
-      <thead>
-        <tr><th>ID</th><th>Product ID</th><th>Key</th><th>Used</th><th>Actions</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <section id="settings">
+      <h2>Settings</h2>
+      <form id="settings-form">
+        <label for="reseller-name">Reseller Name</label>
+        <input type="text" id="reseller-name" placeholder="Your name" />
+        <label for="reseller-email">Email</label>
+        <input type="text" id="reseller-email" placeholder="Your email" />
+        <label for="payment-method">Payment Method</label>
+        <input type="text" id="payment-method" placeholder="Payment method" />
+        <input type="submit" value="Save Settings" />
+      </form>
+    </section>
+  </div>
 
-    <h3 style="margin-top: 30px;">Add New License Key</h3>
-    <form id="add-key-form">
-      <label for="key-product-id">Product ID</label>
-      <input type="number" id="key-product-id" placeholder="Product ID" min="1" required />
-      <label for="license-key">License Key</label>
-      <input type="text" id="license-key" placeholder="License key" required />
-      <label>
-        <input type="checkbox" id="license-used" /> Used
-      </label>
-      <input type="submit" value="Add License Key" />
-    </form>
-  </section>
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal-overlay">
+    <div class="modal">
+      <button class="close-btn" id="login-close">&times;</button>
+      <h3>Admin Login</h3>
+      <form id="login-form">
+        <label for="login-username">Username</label>
+        <input type="text" id="login-username" required />
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" required />
+        <input type="submit" value="Login" />
+      </form>
+      <p style="text-align:center; margin-top: 10px; color: #aaa;">
+        Don't have an account? <button id="show-signup" style="background:none; border:none; color:#5af; cursor:pointer; font-weight:bold;">Sign Up</button>
+      </p>
+    </div>
+  </div>
 
-  <!-- Settings -->
-  <section id="settings">
-    <h2>Settings</h2>
-    <form id="settings-form">
-      <label for="reseller-name">Reseller Name</label>
-      <input type="text" id="reseller-name" placeholder="Your name" />
-
-      <label for="reseller-email">Email</label>
-      <input type="text" id="reseller-email" placeholder="Your email" />
-
-      <label for="payment-method">Payment Method</label>
-      <input type="text" id="payment-method" placeholder="Payment method" />
-
-      <input type="submit" value="Save Settings" />
-    </form>
-  </section>
-</div>
+  <!-- Signup Modal -->
+  <div id="signup-modal" class="modal-overlay">
+    <div class="modal">
+      <button class="close-btn" id="signup-close">&times;</button>
+      <h3>Admin Sign Up</h3>
+      <form id="signup-form">
+        <label for="signup-username">Username</label>
+        <input type="text" id="signup-username" required />
+        <label for="signup-password">Password</label>
+        <input type="password" id="signup-password" required />
+        <input type="submit" value="Sign Up" />
+      </form>
+      <p style="text-align:center; margin-top: 10px; color: #aaa;">
+        Already have an account? <button id="show-login" style="background:none; border:none; color:#5af; cursor:pointer; font-weight:bold;">Login</button>
+      </p>
+    </div>
+  </div>
 
 <script>
-  // Elements
+  // Tabs
   const tabs = document.querySelectorAll('nav .tab-btn');
   const sections = document.querySelectorAll('section');
 
-  // Navigation tab switching
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-
       sections.forEach(sec => sec.classList.remove('active'));
       document.getElementById(tab.dataset.tab).classList.add('active');
     });
   });
 
-  // Storage keys
+  // localStorage keys
   const STORAGE_PRODUCTS = 'reseller_products';
   const STORAGE_KEYS = 'reseller_license_keys';
   const STORAGE_SETTINGS = 'reseller_settings';
+  const STORAGE_ADMINS = 'reseller_admins';
+  const STORAGE_CURRENT_ADMIN = 'reseller_current_admin';
 
-  // Load data from localStorage or default
+  // Data
   let products = JSON.parse(localStorage.getItem(STORAGE_PRODUCTS)) || [
     {id: 1, name: 'Ultimate Cheat', price: 50, stock: 100},
     {id: 2, name: 'Stealth Hack', price: 35, stock: 60},
@@ -248,6 +350,8 @@
     resellerEmail: '',
     paymentMethod: ''
   };
+  let admins = JSON.parse(localStorage.getItem(STORAGE_ADMINS)) || [];
+  let currentAdmin = localStorage.getItem(STORAGE_CURRENT_ADMIN) || null;
 
   // Save helpers
   function saveProducts() {
@@ -259,6 +363,15 @@
   function saveSettings() {
     localStorage.setItem(STORAGE_SETTINGS, JSON.stringify(settings));
   }
+  function saveAdmins() {
+    localStorage.setItem(STORAGE_ADMINS, JSON.stringify(admins));
+  }
+  function saveCurrentAdmin() {
+    if(currentAdmin)
+      localStorage.setItem(STORAGE_CURRENT_ADMIN, currentAdmin);
+    else
+      localStorage.removeItem(STORAGE_CURRENT_ADMIN);
+  }
 
   // Render products table
   const productsTableBody = document.querySelector('#products-table tbody');
@@ -266,15 +379,12 @@
     productsTableBody.innerHTML = '';
     products.forEach(product => {
       const tr = document.createElement('tr');
-
       tr.innerHTML = `
         <td>${product.id}</td>
-        <td><input class="edit-input" type="text" value="${product.name}" data-id="${product.id}" data-field="name"></td>
-        <td><input class="edit-input" type="number" min="0" step="0.01" value="${product.price}" data-id="${product.id}" data-field="price"></td>
-        <td><input class="edit-input" type="number" min="0" step="1" value="${product.stock}" data-id="${product.id}" data-field="stock"></td>
-        <td>
-          <button class="action-btn delete-product" data-id="${product.id}">Delete</button>
-        </td>
+        <td>${isAdmin() ? `<input class="edit-input" type="text" value="${product.name}" data-id="${product.id}" data-field="name">` : product.name}</td>
+        <td>${isAdmin() ? `<input class="edit-input" type="number" min="0" step="0.01" value="${product.price}" data-id="${product.id}" data-field="price">` : product.price}</td>
+        <td>${isAdmin() ? `<input class="edit-input" type="number" min="0" step="1" value="${product.stock}" data-id="${product.id}" data-field="stock">` : product.stock}</td>
+        <td>${isAdmin() ? `<button class="action-btn delete-product" data-id="${product.id}">Delete</button>` : ''}</td>
       `;
       productsTableBody.appendChild(tr);
     });
@@ -286,17 +396,12 @@
     keysTableBody.innerHTML = '';
     licenseKeys.forEach(key => {
       const tr = document.createElement('tr');
-
       tr.innerHTML = `
         <td>${key.id}</td>
-        <td><input class="edit-input" type="number" min="1" value="${key.productId}" data-id="${key.id}" data-field="productId" style="width:60px;"></td>
-        <td><input class="edit-input" type="text" value="${key.key}" data-id="${key.id}" data-field="key"></td>
-        <td>
-          <input type="checkbox" class="used-checkbox" data-id="${key.id}" ${key.used ? 'checked' : ''}/>
-        </td>
-        <td>
-          <button class="action-btn delete-key" data-id="${key.id}">Delete</button>
-        </td>
+        <td>${isAdmin() ? `<input class="edit-input" type="number" min="1" value="${key.productId}" data-id="${key.id}" data-field="productId" style="width:60px;">` : key.productId}</td>
+        <td>${isAdmin() ? `<input class="edit-input" type="text" value="${key.key}" data-id="${key.id}" data-field="key">` : key.key}</td>
+        <td>${isAdmin() ? `<input type="checkbox" class="used-checkbox" data-id="${key.id}" ${key.used ? 'checked' : ''}/>` : (key.used ? 'Yes' : 'No')}</td>
+        <td>${isAdmin() ? `<button class="action-btn delete-key" data-id="${key.id}">Delete</button>` : ''}</td>
       `;
       keysTableBody.appendChild(tr);
     });
@@ -307,15 +412,27 @@
     document.getElementById('reseller-name').value = settings.resellerName;
     document.getElementById('reseller-email').value = settings.resellerEmail;
     document.getElementById('payment-method').value = settings.paymentMethod;
+
+    // Disable inputs if not admin
+    ['reseller-name', 'reseller-email', 'payment-method'].forEach(id => {
+      document.getElementById(id).disabled = !isAdmin();
+    });
+    // Disable save button if not admin
+    document.querySelector('#settings-form input[type="submit"]').disabled = !isAdmin();
+  }
+
+  // Check if logged in as admin
+  function isAdmin() {
+    return currentAdmin !== null;
   }
 
   // Update product on input change
   productsTableBody.addEventListener('input', e => {
+    if(!isAdmin()) return;
     if(e.target.classList.contains('edit-input')) {
       const id = Number(e.target.dataset.id);
       const field = e.target.dataset.field;
       const val = e.target.type === 'number' ? Number(e.target.value) : e.target.value;
-
       const product = products.find(p => p.id === id);
       if(product) {
         product[field] = val;
@@ -326,6 +443,7 @@
 
   // Delete product
   productsTableBody.addEventListener('click', e => {
+    if(!isAdmin()) return;
     if(e.target.classList.contains('delete-product')) {
       const id = Number(e.target.dataset.id);
       products = products.filter(p => p.id !== id);
@@ -339,13 +457,34 @@
     }
   });
 
-  // Update license key on input change
+  // Add product form
+  const addProductForm = document.getElementById('add-product-form');
+  addProductForm.addEventListener('submit', e => {
+    e.preventDefault();
+    if(!isAdmin()) {
+      alert('Only admins can add products!');
+      return;
+    }
+    const name = document.getElementById('product-name').value.trim();
+    const price = parseFloat(document.getElementById('product-price').value);
+    const stock = parseInt(document.getElementById('product-stock').value);
+
+    if(name && !isNaN(price) && !isNaN(stock)) {
+      const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+      products.push({id: newId, name, price, stock});
+      saveProducts();
+      renderProducts();
+      addProductForm.reset();
+    }
+  });
+
+  // License keys editing
   keysTableBody.addEventListener('input', e => {
+    if(!isAdmin()) return;
     if(e.target.classList.contains('edit-input')) {
       const id = Number(e.target.dataset.id);
       const field = e.target.dataset.field;
       const val = e.target.type === 'number' ? Number(e.target.value) : e.target.value;
-
       const key = licenseKeys.find(k => k.id === id);
       if(key) {
         key[field] = val;
@@ -354,8 +493,8 @@
     }
   });
 
-  // Toggle 'used' checkbox
   keysTableBody.addEventListener('change', e => {
+    if(!isAdmin()) return;
     if(e.target.classList.contains('used-checkbox')) {
       const id = Number(e.target.dataset.id);
       const key = licenseKeys.find(k => k.id === id);
@@ -368,6 +507,7 @@
 
   // Delete license key
   keysTableBody.addEventListener('click', e => {
+    if(!isAdmin()) return;
     if(e.target.classList.contains('delete-key')) {
       const id = Number(e.target.dataset.id);
       licenseKeys = licenseKeys.filter(k => k.id !== id);
@@ -376,34 +516,20 @@
     }
   });
 
-  // Add new product form submit
-  const addProductForm = document.getElementById('add-product-form');
-  addProductForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const name = document.getElementById('product-name').value.trim();
-    const price = parseFloat(document.getElementById('product-price').value);
-    const stock = parseInt(document.getElementById('product-stock').value);
-
-    if(name && !isNaN(price) && !isNaN(stock)) {
-      const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-      products.push({id: newId, name, price, stock});
-      saveProducts();
-      renderProducts();
-      addProductForm.reset();
-    }
-  });
-
-  // Add new license key form submit
+  // Add license key form
   const addKeyForm = document.getElementById('add-key-form');
   addKeyForm.addEventListener('submit', e => {
     e.preventDefault();
+    if(!isAdmin()) {
+      alert('Only admins can add license keys!');
+      return;
+    }
     const productId = parseInt(document.getElementById('key-product-id').value);
-    const key = document.getElementById('license-key').value.trim();
+    const keyVal = document.getElementById('license-key').value.trim();
     const used = document.getElementById('license-used').checked;
-
-    if(!isNaN(productId) && key) {
-      const newId = licenseKeys.length > 0 ? Math.max(...licenseKeys.map(k => k.id)) + 1 : 1;
-      licenseKeys.push({id: newId, productId, key, used});
+    if(!isNaN(productId) && keyVal) {
+      const newId = licenseKeys.length ? Math.max(...licenseKeys.map(k => k.id)) + 1 : 1;
+      licenseKeys.push({id: newId, productId, key: keyVal, used});
       saveKeys();
       renderKeys();
       addKeyForm.reset();
@@ -414,17 +540,146 @@
   const settingsForm = document.getElementById('settings-form');
   settingsForm.addEventListener('submit', e => {
     e.preventDefault();
+    if(!isAdmin()) {
+      alert('Only admins can save settings!');
+      return;
+    }
     settings.resellerName = document.getElementById('reseller-name').value.trim();
     settings.resellerEmail = document.getElementById('reseller-email').value.trim();
     settings.paymentMethod = document.getElementById('payment-method').value.trim();
     saveSettings();
-    alert('Settings saved locally.');
+    alert('Settings saved!');
   });
 
+  // Login/signup modal logic
+  const loginModal = document.getElementById('login-modal');
+  const signupModal = document.getElementById('signup-modal');
+  const loginBtn = document.getElementById('login-btn');
+  const signupBtn = document.getElementById('signup-btn');
+  const loginClose = document.getElementById('login-close');
+  const signupClose = document.getElementById('signup-close');
+  const showSignupBtn = document.getElementById('show-signup');
+  const showLoginBtn = document.getElementById('show-login');
+
+  loginBtn.addEventListener('click', () => {
+    loginModal.classList.add('active');
+  });
+  signupBtn.addEventListener('click', () => {
+    signupModal.classList.add('active');
+  });
+  loginClose.addEventListener('click', () => {
+    loginModal.classList.remove('active');
+  });
+  signupClose.addEventListener('click', () => {
+    signupModal.classList.remove('active');
+  });
+  showSignupBtn.addEventListener('click', () => {
+    loginModal.classList.remove('active');
+    signupModal.classList.add('active');
+  });
+  showLoginBtn.addEventListener('click', () => {
+    signupModal.classList.remove('active');
+    loginModal.classList.add('active');
+  });
+
+  // Signup form
+  const signupForm = document.getElementById('signup-form');
+  signupForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = document.getElementById('signup-username').value.trim();
+    const password = document.getElementById('signup-password').value.trim();
+    if(!username || !password) {
+      alert('Please enter username and password');
+      return;
+    }
+    if(admins.find(a => a.username === username)) {
+      alert('Username already exists');
+      return;
+    }
+    admins.push({username, password});
+    saveAdmins();
+    alert('Account created! You can now login.');
+    signupModal.classList.remove('active');
+    loginModal.classList.add('active');
+    signupForm.reset();
+  });
+
+  // Login form
+  const loginForm = document.getElementById('login-form');
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+    const admin = admins.find(a => a.username === username && a.password === password);
+    if(!admin) {
+      alert('Invalid username or password');
+      return;
+    }
+    currentAdmin = username;
+    saveCurrentAdmin();
+    alert('Logged in as admin: ' + username);
+    loginModal.classList.remove('active');
+    updateUIForAdmin();
+  });
+
+  // Logout button
+  function addLogoutButton() {
+    const authDiv = document.getElementById('auth-buttons');
+    authDiv.innerHTML = '';
+    const userSpan = document.createElement('span');
+    userSpan.textContent = `Admin: ${currentAdmin}`;
+    userSpan.style.color = '#5af';
+    userSpan.style.fontWeight = '700';
+    userSpan.style.marginRight = '10px';
+
+    const logoutBtn = document.createElement('button');
+    logoutBtn.textContent = 'Logout';
+    logoutBtn.onclick = () => {
+      currentAdmin = null;
+      saveCurrentAdmin();
+      alert('Logged out');
+      updateUIForAdmin();
+    };
+    authDiv.appendChild(userSpan);
+    authDiv.appendChild(logoutBtn);
+  }
+
+  // Update UI depending on admin login status
+  function updateUIForAdmin() {
+    if(isAdmin()) {
+      addLogoutButton();
+      // Show admin controls
+      document.getElementById('add-product-form').style.display = 'block';
+      document.getElementById('add-key-form').style.display = 'block';
+      // Make products and keys editable
+      renderProducts();
+      renderKeys();
+      renderSettings();
+      document.body.classList.remove('view-only');
+    } else {
+      // Show login/signup buttons
+      const authDiv = document.getElementById('auth-buttons');
+      authDiv.innerHTML = `
+        <button id="login-btn">Login</button>
+        <button id="signup-btn">Sign Up</button>
+      `;
+      // Rebind login/signup button listeners
+      document.getElementById('login-btn').addEventListener('click', () => loginModal.classList.add('active'));
+      document.getElementById('signup-btn').addEventListener('click', () => signupModal.classList.add('active'));
+      // Hide admin controls
+      document.getElementById('add-product-form').style.display = 'none';
+      document.getElementById('add-key-form').style.display = 'none';
+      // Render as view-only
+      renderProducts();
+      renderKeys();
+      renderSettings();
+      document.body.classList.add('view-only');
+    }
+  }
+
   // Initial render
-  renderProducts();
-  renderKeys();
-  renderSettings();
+  updateUIForAdmin();
+
 </script>
 
 </body>
