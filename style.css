@@ -227,7 +227,30 @@ tbody tr:hover {
     margin-top: 1rem;
     width: 100%;
 }
+/* Styles for User Action Buttons in Admin Panel */
+.user-actions button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    font-size: 0.85em;
+    border-radius: 3px;
+}
 
+.btn-timeout { background-color: #ffc107; color: #121212; }
+.btn-timeout:hover { background-color: #e0a800; }
+
+.btn-ban { background-color: #dc3545; }
+.btn-ban:hover { background-color: #c82333; }
+
+.btn-pardon { background-color: #28a745; }
+.btn-pardon:hover { background-color: #218838; }
+
+.btn-delete { background-color: #5a6268; }
+.btn-delete:hover { background-color: #4a4f55; }
+
+.status-banned, .status-timedout {
+    font-weight: bold;
+    color: #ffc107;
+}
 #admin-login-button:hover {
     background-color: #4a4f55;
 }
