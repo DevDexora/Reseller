@@ -1,24 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("Panel script started.");
+
     // ======== DOM ELEMENTS ========
     const authContainer = document.getElementById("auth-container");
     const loginView = document.getElementById("login-view");
     const signupView = document.getElementById("signup-view");
     const resellerPanel = document.getElementById("reseller-panel");
     const adminPanel = document.getElementById("admin-panel");
-
     const showSignupLink = document.getElementById("show-signup");
     const showLoginLink = document.getElementById("show-login");
-
     const loginForm = document.getElementById("login-form");
     const signupForm = document.getElementById("signup-form");
-    const adminLoginButton = document.getElementById("admin-login-button"); // New button
-
+    const adminLoginButton = document.getElementById("admin-login-button");
     const logoutButton = document.getElementById("logout-button");
     const adminLogoutButton = document.getElementById("admin-logout-button");
-
     const buyButtons = document.querySelectorAll(".buy-button");
-
-    // Admin Panel Elements
     const showUsersTab = document.getElementById("show-users-tab");
     const showKeysTab = document.getElementById("show-keys-tab");
     const adminUsersView = document.getElementById("admin-users-view");
@@ -29,12 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const saveKeysButton = document.getElementById("save-keys-button");
 
     // ======== STATE & DATA ========
-    // ⚠️ Admin credentials updated as requested.
     const ADMIN_USER = "sylix";
-    const ADMIN_PASS = "pass"; 
+    const ADMIN_PASS = "pass";
     const PURCHASE_LINK = "https://dexorapanel.mysellauth.com";
 
-    // Initialize data from localStorage or create empty arrays
     let users = JSON.parse(localStorage.getItem('panelUsers')) || [];
     let keys = JSON.parse(localStorage.getItem('panelKeys')) || [
         { product: "Nexus", key: "NEX-DEMO-KEY-1234", duration: "30 Days" },
@@ -58,31 +52,34 @@ document.addEventListener("DOMContentLoaded", () => {
         renderAdminTabs();
     };
 
-    // ======== AUTHENTICATION ========
-    
-    // Logic for the new Admin Login button
-    adminLoginButton.addEventListener('click', () => {
-        const password = prompt("Enter Admin Password:");
-        if (password === ADMIN_PASS) {
-            loginAdmin();
-        } else if (password !== null) { // Check if user pressed Cancel
-            alert("Incorrect admin password.");
-        }
-    });
-    
-    // Logic for the main login form
+    // ======== AUTHENTICATION & EVENT LISTENERS ========
+
+    // Check if the admin button exists before adding a listener
+    if (adminLoginButton) {
+        console.log("Admin login button found. Attaching listener.");
+        adminLoginButton.addEventListener('click', () => {
+            console.log("Admin login button was clicked.");
+            const password = prompt("Enter Admin Password:");
+            if (password === ADMIN_PASS) {
+                loginAdmin();
+            } else if (password !== null) {
+                alert("Incorrect admin password.");
+            }
+        });
+    } else {
+        console.error("Could not find the 'admin-login-button'. Check your index.html file.");
+    }
+
     loginForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const username = document.getElementById("login-username").value;
         const password = document.getElementById("login-password").value;
 
-        // Check for Admin login using the form
         if (username === ADMIN_USER && password === ADMIN_PASS) {
             loginAdmin();
             return;
         }
 
-        // Check for Reseller login
         const user = users.find(u => u.username === username && u.password === password);
         if (user) {
             alert("Login successful!");
@@ -102,8 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Username already exists.");
             return;
         }
-        
-        // Prevent using the admin username for signup
+
         if (username === ADMIN_USER) {
             alert("This username is reserved.");
             return;
@@ -125,7 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
     logoutButton.addEventListener("click", logout);
     adminLogoutButton.addEventListener("click", logout);
 
-    // ======== VIEW TOGGLING ========
     showSignupLink.addEventListener("click", (e) => {
         e.preventDefault();
         loginView.classList.add("hidden");
@@ -138,8 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
         loginView.classList.remove("hidden");
     });
 
-
-    // ======== RESELLER PANEL ========
     buyButtons.forEach(button => {
         button.addEventListener("click", () => {
             console.log("Redirecting to purchase page...");
@@ -147,14 +140,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-
     // ======== ADMIN PANEL ========
     const renderAdminTabs = () => {
         renderUsers();
         renderKeys();
     };
     
-    // -- Users Tab
     const renderUsers = () => {
         usersTableBody.innerHTML = "";
         if (users.length === 0) {
@@ -167,7 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // -- Keys Tab
     const renderKeys = () => {
         keysTableBody.innerHTML = "";
         if (keys.length === 0) {
