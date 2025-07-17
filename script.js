@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const loginForm = document.getElementById("login-form");
     const signupForm = document.getElementById("signup-form");
+    const adminLoginButton = document.getElementById("admin-login-button"); // New button
 
     const logoutButton = document.getElementById("logout-button");
     const adminLogoutButton = document.getElementById("admin-logout-button");
@@ -28,15 +29,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const saveKeysButton = document.getElementById("save-keys-button");
 
     // ======== STATE & DATA ========
-    // ⚠️ Admin credentials are hardcoded here.
-    const ADMIN_USER = "admin";
-    const ADMIN_PASS = "admin123"; // Change this in your real (but still insecure) version
+    // ⚠️ Admin credentials updated as requested.
+    const ADMIN_USER = "sylix";
+    const ADMIN_PASS = "pass"; 
     const PURCHASE_LINK = "https://dexorapanel.mysellauth.com";
 
     // Initialize data from localStorage or create empty arrays
     let users = JSON.parse(localStorage.getItem('panelUsers')) || [];
     let keys = JSON.parse(localStorage.getItem('panelKeys')) || [
-        // Default example keys
         { product: "Nexus", key: "NEX-DEMO-KEY-1234", duration: "30 Days" },
         { product: "Nexus Lite", key: "LITE-DEMO-KEY-5678", duration: "7 Days" },
     ];
@@ -52,17 +52,33 @@ document.addEventListener("DOMContentLoaded", () => {
         view.classList.remove("hidden");
     };
 
+    const loginAdmin = () => {
+        alert("Admin login successful!");
+        showView(adminPanel);
+        renderAdminTabs();
+    };
+
     // ======== AUTHENTICATION ========
+    
+    // Logic for the new Admin Login button
+    adminLoginButton.addEventListener('click', () => {
+        const password = prompt("Enter Admin Password:");
+        if (password === ADMIN_PASS) {
+            loginAdmin();
+        } else if (password !== null) { // Check if user pressed Cancel
+            alert("Incorrect admin password.");
+        }
+    });
+    
+    // Logic for the main login form
     loginForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const username = document.getElementById("login-username").value;
         const password = document.getElementById("login-password").value;
 
-        // Check for Admin login
+        // Check for Admin login using the form
         if (username === ADMIN_USER && password === ADMIN_PASS) {
-            alert("Admin login successful!");
-            showView(adminPanel);
-            renderAdminTabs();
+            loginAdmin();
             return;
         }
 
@@ -84,6 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (users.some(u => u.username === username)) {
             alert("Username already exists.");
+            return;
+        }
+        
+        // Prevent using the admin username for signup
+        if (username === ADMIN_USER) {
+            alert("This username is reserved.");
             return;
         }
 
@@ -134,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // -- Users Tab
     const renderUsers = () => {
-        usersTableBody.innerHTML = ""; // Clear existing table
+        usersTableBody.innerHTML = "";
         if (users.length === 0) {
             usersTableBody.innerHTML = `<tr><td colspan="2">No users have signed up yet.</td></tr>`;
         } else {
@@ -147,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // -- Keys Tab
     const renderKeys = () => {
-        keysTableBody.innerHTML = ""; // Clear existing table
+        keysTableBody.innerHTML = "";
         if (keys.length === 0) {
             keysTableBody.innerHTML = `<tr><td colspan="4">No keys found. Add one!</td></tr>`;
         } else {
@@ -162,7 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 keysTableBody.appendChild(row);
             });
         }
-        // Add event listeners to new delete buttons
         document.querySelectorAll('.delete-key-button').forEach(button => {
             button.addEventListener('click', (e) => {
                 const index = e.target.getAttribute('data-index');
@@ -178,8 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
     addKeyButton.addEventListener("click", () => {
         const newKey = { product: "New Product", key: "NEW-KEY-XXXX-XXXX", duration: "30 Days" };
         keys.push(newKey);
-        // Do not save yet, let user edit first
-        renderKeys(); // Re-render to show the new empty row
+        renderKeys();
     });
 
     saveKeysButton.addEventListener("click", () => {
@@ -187,7 +207,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const rows = keysTableBody.querySelectorAll("tr");
         rows.forEach(row => {
             const inputs = row.querySelectorAll("input");
-            // Check if row has inputs, otherwise it might be a 'no keys found' message
             if (inputs.length > 0) {
                 const keyData = {
                     product: inputs[0].value,
@@ -197,10 +216,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 newKeys.push(keyData);
             }
         });
-        keys = newKeys; // Replace old keys array with the new one
+        keys = newKeys;
         saveKeys();
         alert("All key changes have been saved!");
-        renderKeys(); // Re-render to confirm changes
+        renderKeys();
     });
 
     showUsersTab.addEventListener("click", () => {
