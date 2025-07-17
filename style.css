@@ -222,3 +222,12 @@ tbody tr:hover {
 #save-keys-button {
     background-color: #007bff;
 }
+#admin-login-button {
+    background-color: #5a6268;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+#admin-login-button:hover {
+    background-color: #4a4f55;
+}
